@@ -57,4 +57,4 @@ config :swoosh, :api_client, false
 
 config :backend_server, :openai,
   api_url: "https://api.openai.com/v1/chat/completions",
-  api_key: "<add_api_key_here>"
+  api_key: "<your_api_key>"

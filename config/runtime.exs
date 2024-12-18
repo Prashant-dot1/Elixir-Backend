@@ -50,6 +50,17 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  openai_api_url =
+    System.get_env("OPENAI_API_URL") ||
+      raise "OPENAI_API_URL is missing. Please set it in the environment."
+
+  openai_api_key =
+    System.get_env("OPENAI_API_KEY") ||
+      raise "OPENAI_API_KEY is missing. Please set it in the environment."
+
+  config :backend_server, :openai,
+    api_url: openai_api_url,
+    api_key: openai_api_key
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key

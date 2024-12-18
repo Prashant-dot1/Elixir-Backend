@@ -2,6 +2,18 @@ defmodule BackendServerWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :backend_server
 
 
+  defmodule DebugPlug do
+    import Plug.Conn
+
+    def init(opts), do: opts
+
+    def call(conn, _opts) do
+      IO.inspect(conn.req_headers, label: "Incoming Request Headers")
+      conn
+    end
+  end
+
+
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
@@ -48,10 +60,21 @@ defmodule BackendServerWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_options
 
+  plug BackendServerWeb.Endpoint.DebugPlug
+
+  IO.inspect(System.get_env("FRONTEND_HOST"), label: "Resolved FRONTEND_HOST")
   plug CORSPlug,
-  origin: ["http://localhost:3000", "http://127.0.0.1:3000"], # Allow multiple origins
+  origin: ["https://assignment-first.fly.dev" , "http://localhost:3000"], # Allow multiple origins
   methods: ["GET", "POST", "OPTIONS"],
   headers: ["Content-Type", "Authorization"]
+
+  plug :log_response_headers
+
+  defp log_response_headers(conn, _opts) do
+    IO.inspect(conn.resp_headers, label: "Response Headers")
+    conn
+  end
+
 
   plug BackendServerWeb.Router
 

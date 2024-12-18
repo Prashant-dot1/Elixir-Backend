@@ -1,6 +1,9 @@
 defmodule BackendServer.Shader do
-  @api_url Application.get_env(:backend_server, :openai)[:api_url] || "https://api.openai.com/v1/chat/completions"
-  @api_key Application.get_env(:backend_server, :openai)[:api_key]
+  # @api_url Application.get_env(:backend_server, :openai)[:api_url] || "https://api.openai.com/v1/chat/completions"
+  # @api_key Application.get_env(:backend_server, :openai)[:api_key]
+
+  # api_url = Application.get_env(:backend_server, :openai)[:api_url]
+  # api_key = Application.get_env(:backend_server, :openai)[:api_key]
 
   def generate_shader(description) do
     body = Jason.encode!(%{
@@ -14,11 +17,11 @@ defmodule BackendServer.Shader do
     })
 
     headers = [
-      {"Authorization", "Bearer #{@api_key}"},
+      {"Authorization", "Bearer #{api_key()}"},
       {"Content-Type", "application/json"}
     ]
 
-    case HTTPoison.post(@api_url, body, headers, timeout: 30_000, recv_timeout: 30_000) do
+    case HTTPoison.post(api_url(), body, headers, timeout: 30_000, recv_timeout: 30_000) do
       {:ok, %HTTPoison.Response{status_code: 200, body: response_body}} ->
         response = Jason.decode!(response_body)
         content = response["choices"] |> List.first() |> Map.get("message") |> Map.get("content")
@@ -30,6 +33,15 @@ defmodule BackendServer.Shader do
       {:error, reason} ->
         {:error, "Failed to contact LLM: #{inspect(reason)}"}
     end
+  end
+
+  defp api_url do
+    Application.fetch_env!(:backend_server, :openai)[:api_url] || "https://api.openai.com/v1/chat/completions"
+  end
+
+  defp api_key do
+    Application.fetch_env!(:backend_server, :openai)[:api_key] ||
+      raise "OPENAI_API_KEY is missing. Please set it in the environment."
   end
 
   defp build_prompt(description) do

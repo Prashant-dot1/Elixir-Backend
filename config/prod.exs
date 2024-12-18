@@ -9,20 +9,14 @@ config :swoosh, local: false
 # Do not print debug messages in production
 config :logger, level: :info
 
-# Runtime production configuration, including reading
-# of environment variables, is done on config/runtime.exs.
-
+# Endpoint Configuration
 config :backend_server, BackendServerWeb.Endpoint,
-  url: [host: "your-backend-domain.com", port: 443],
-  http: [:inet6, port: System.get_env("PORT") || 4000],
-  secret_key_base: System.get_env("SECRET_KEY_BASE"),
+  url: [host: System.get_env("PHX_HOST"), port: 443],
+  http: [:inet6, port: String.to_integer(System.get_env("PORT") || "4000")],
   server: true,
-  check_origin: ["https://your-frontend-domain.com"]
+  check_origin: [System.get_env("FRONTEND_HOST") || "http://localhost:3000"]
 
-config :backend_server, :openai,
-  api_url: System.fetch_env!("OPENAI_API_URL"),
-  api_key: System.fetch_env!("OPENAI_API_KEY")
-
-# CORS configuration
-config :backend_server, :cors,
-  allowed_origins: ["https://your-frontend-domain.com"]
+# # OpenAI Configuration
+# config :backend_server, :openai,
+#   api_url: System.fetch_env!("OPENAI_API_URL"),
+#   api_key: System.fetch_env!("OPENAI_API_KEY")
